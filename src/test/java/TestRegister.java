@@ -1,85 +1,97 @@
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-
+import org.openqa.selenium.support.ui.WebDriverWait;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
 
 public class TestRegister {
     @Test
-    void test101() throws Exception {
-        System.setProperty("webdriver.chrome.driver", "./chromedriver/chromedriver-win32/chromedriver.exe");
+    void test101() throws IOException {
+        System.setProperty("webdriver.chrome.driver", "./chromedriver/chromedriver.exe");
 
+        // เปิดไฟล์ Excel
         String path = "./Excel/Sci.xlsx";
         FileInputStream fs = new FileInputStream(path);
         XSSFWorkbook workbook = new XSSFWorkbook(fs);
         XSSFSheet sheet = workbook.getSheetAt(0);
         int row = sheet.getLastRowNum() + 1;
 
-        for (int i = 1; i < row; i++) {
-            WebDriver driver = new ChromeDriver();
+        DataFormatter formatter = new DataFormatter(); // ใช้เพื่ออ่านค่าจากทุกประเภทของ Cell
+
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+        for (int i = 1; i < row - 1; i++) {
             driver.get("https://sc.npru.ac.th/sc_shortcourses/signup");
 
-            Row rows = sheet.getRow(i);
-            if (rows == null) continue;
+            // อ่านค่าจาก Excel แบบไม่สนใจว่าเป็น String หรือ Numeric
+            String titleTha = formatter.formatCellValue(sheet.getRow(i).getCell(1));
+            String firstNameTha = formatter.formatCellValue(sheet.getRow(i).getCell(2));
+            String lastNameTha = formatter.formatCellValue(sheet.getRow(i).getCell(3));
+            String titleEng = formatter.formatCellValue(sheet.getRow(i).getCell(4));
+            String firstNameEng = formatter.formatCellValue(sheet.getRow(i).getCell(5));
+            String lastNameEng = formatter.formatCellValue(sheet.getRow(i).getCell(6));
+            String birthDate = formatter.formatCellValue(sheet.getRow(i).getCell(7));
+            String birthMonth = formatter.formatCellValue(sheet.getRow(i).getCell(8));
+            String birthYear = formatter.formatCellValue(sheet.getRow(i).getCell(9));
+            String idCard = formatter.formatCellValue(sheet.getRow(i).getCell(10));
+            String password = formatter.formatCellValue(sheet.getRow(i).getCell(11));
+            String mobile = formatter.formatCellValue(sheet.getRow(i).getCell(12));
+            String email = formatter.formatCellValue(sheet.getRow(i).getCell(13));
+            String address = formatter.formatCellValue(sheet.getRow(i).getCell(14));
+            String province = formatter.formatCellValue(sheet.getRow(i).getCell(15));
+            String district = formatter.formatCellValue(sheet.getRow(i).getCell(16));
+            String subDistrict = formatter.formatCellValue(sheet.getRow(i).getCell(17));
+            String postalCode = formatter.formatCellValue(sheet.getRow(i).getCell(18));
+            String acceptExcel = formatter.formatCellValue(sheet.getRow(i).getCell(19));
 
-            // ดึงค่าจาก Excel
-            String nameTitleTha = (rows.getCell(1) != null) ? rows.getCell(1).toString() : "";
-            String firstnameTha = (rows.getCell(2) != null) ? rows.getCell(2).toString() : "";
-            String lastnameTha = (rows.getCell(3) != null) ? rows.getCell(3).toString() : "";
-            String nameTitleEng = (rows.getCell(4) != null) ? rows.getCell(4).toString() : "";
-            String firstnameEng = (rows.getCell(5) != null) ? rows.getCell(5).toString() : "";
-            String lastnameEng = (rows.getCell(6) != null) ? rows.getCell(6).toString() : "";
-            String birthDate = (rows.getCell(7) != null) ? String.valueOf((int) rows.getCell(7).getNumericCellValue()) : "";
-            String birthMonth = (rows.getCell(8) != null) ? String.valueOf((int) rows.getCell(8).getNumericCellValue()) : "";
-            String birthYear = (rows.getCell(9) != null) ? String.valueOf((int) rows.getCell(9).getNumericCellValue()) : "";
-            String idCard = (rows.getCell(10) != null) ? rows.getCell(10).toString() : "";
-            String password = (rows.getCell(11) != null) ? rows.getCell(11).toString() : "";
-            String mobile = (rows.getCell(12) != null) ? rows.getCell(12).toString() : "";
-            String email = (rows.getCell(13) != null) ? rows.getCell(13).toString() : "";
-            String address = (rows.getCell(14) != null) ? rows.getCell(14).toString() : "";
-            String province = (rows.getCell(15) != null) ? rows.getCell(15).toString() : "";
-            String district = (rows.getCell(16) != null) ? rows.getCell(16).toString() : "";
-            String subDistrict = (rows.getCell(17) != null) ? rows.getCell(17).toString() : "";
-            String postalCode = (rows.getCell(18) != null) ? String.valueOf((int) rows.getCell(18).getNumericCellValue()) : "";
+            // กรอกข้อมูล
+            new Select(driver.findElement(By.id("nameTitleTha"))).selectByVisibleText(titleTha);
+            driver.findElement(By.id("firstnameTha")).sendKeys(firstNameTha);
+            driver.findElement(By.id("lastnameTha")).sendKeys(lastNameTha);
 
-            System.out.println("birthMonth" + birthMonth);
-            // กรอกข้อมูลลงฟอร์ม
-            new Select(driver.findElement(By.id("nameTitleTha"))).selectByVisibleText(nameTitleTha);
-            driver.findElement(By.id("firstnameTha")).sendKeys(firstnameTha);
-            driver.findElement(By.id("lastnameTha")).sendKeys(lastnameTha);
-            new Select(driver.findElement(By.id("nameTitleEng"))).selectByVisibleText(nameTitleEng);
-            driver.findElement(By.id("firstnameEng")).sendKeys(firstnameEng);
-            driver.findElement(By.id("lastnameEng")).sendKeys(lastnameEng);
-            new Select(driver.findElement(By.id("birthDate"))).selectByVisibleText(birthDate);
-            new Select(driver.findElement(By.id("birthMonth"))).selectByValue(birthMonth);
-            new Select(driver.findElement(By.id("birthYear"))).selectByValue(birthYear);
+            new Select(driver.findElement(By.id("nameTitleEng"))).selectByVisibleText(titleEng);
+            driver.findElement(By.id("firstnameEng")).sendKeys(firstNameEng);
+            driver.findElement(By.id("lastnameEng")).sendKeys(lastNameEng);
+
+            driver.findElement(By.id("birthDate")).sendKeys(birthDate);
+            driver.findElement(By.id("birthMonth")).sendKeys(birthMonth);
+            driver.findElement(By.id("birthYear")).sendKeys(birthYear);
             driver.findElement(By.id("idCard")).sendKeys(idCard);
             driver.findElement(By.id("password")).sendKeys(password);
             driver.findElement(By.id("mobile")).sendKeys(mobile);
             driver.findElement(By.id("email")).sendKeys(email);
             driver.findElement(By.id("address")).sendKeys(address);
-            driver.findElement(By.id("province")).sendKeys(province);
+
+            new Select(driver.findElement(By.id("province"))).selectByVisibleText(province);
             driver.findElement(By.id("district")).sendKeys(district);
             driver.findElement(By.id("subDistrict")).sendKeys(subDistrict);
             driver.findElement(By.id("postalCode")).sendKeys(postalCode);
 
+            // ตรวจสอบว่าต้องคลิก checkbox หรือไม่
             WebElement accept = driver.findElement(By.id("accept"));
             JavascriptExecutor js = (JavascriptExecutor) driver;
             if (!accept.isSelected()){
                 js.executeScript("arguments[0].click();",accept);
+                }
             }
-//            driver.quit();
-        }
 
-        workbook.close();
-        fs.close();
+            WebElement submitBtn = driver.findElement(By.xpath("/html/body/section/div/div/form/div[6]/button"));
+            submitBtn.submit();
+
+            WebElement form = driver.findElement(By.xpath("/html/body/section/div/div/form"));
+            form.submit();
+            System.out.println("Register Successfully!");
+
+            driver.quit();
+        }
     }
-}
+
